@@ -37,7 +37,10 @@ export function useAuth() {
     return await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/journal`
+        redirectTo: `${window.location.origin}/journal`,
+        queryParams: {
+          prompt: "select_account"
+        }
       }
     })
   }
