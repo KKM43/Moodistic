@@ -4,20 +4,36 @@ require("dotenv").config();
 
 const app = express();
 
-console.log("GROQ_API_KEY exists:", !!process.env.GROQ_API_KEY);
-console.log("GROQ_API_KEY starts with:", process.env.GROQ_API_KEY?.slice(0, 8));
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 15000);
+
+
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:4173",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean),
-  }),
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:4173",
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); 
+      }
+    },
+  })
 );
 
 app.use(express.json({ limit: "10mb" }));
+app.set("trust proxy", 1);
+
+app.get("/", (_, res) => {
+  res.send("MindShift API is running");
+});
 
 app.get("/health", (_, res) => res.json({ status: "ok" }));
 
@@ -64,8 +80,10 @@ app.post("/api/chat", async (req, res) => {
           temperature: 0.8,
           messages: [{ role: "system", content: systemPrompt }, ...messages],
         }),
+         signal: controller.signal,
       },
     );
+     clearTimeout(timeout);
 
     const data = await response.json();
 
