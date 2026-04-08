@@ -66,44 +66,56 @@ app.post("/api/chat", async (req, res) => {
   }
 
   try {
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          max_tokens: 200,
-          temperature: 0.8,
-          messages: [{ role: "system", content: systemPrompt }, ...messages],
-        }),
-         signal: controller.signal,
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000); 
+
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
-    );
-     clearTimeout(timeout);
-
-    const data = await response.json();
-
-    if (response.status === 429) {
-      return res
-        .status(429)
-        .json({ error: "AI is taking a short break — try again in a moment" });
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant", 
+        max_tokens: 200,
+        temperature: 0.8,
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
+      }),
+      signal: controller.signal,
     }
+  );
 
-    if (!response.ok) {
-      return res
-        .status(500)
-        .json({ error: data.error?.message || "Groq error" });
-    }
+  clearTimeout(timeout);
 
-    return res.json({ content: data.choices[0].message.content });
-  } catch (err) {
-    console.error("Error:", err);
-    return res.status(500).json({ error: "Server error — please try again" });
+  const data = await response.json();
+
+  if (response.status === 429) {
+    return res
+      .status(429)
+      .json({ error: "AI is taking a short break — try again in a moment" });
   }
+
+  if (!response.ok) {
+    console.error("Groq error:", data);
+    return res
+      .status(500)
+      .json({ error: data.error?.message || "Groq error" });
+  }
+
+  return res.json({ content: data.choices[0].message.content });
+
+} catch (err) {
+  if (err.name === "AbortError") {
+    return res.status(504).json({
+      error: "AI took too long — try again 🙏",
+    });
+  }
+
+  console.error("Error:", err);
+  return res.status(500).json({ error: "Server error — please try again" });
+}
 });
 
 const PORT = process.env.PORT || 3001;

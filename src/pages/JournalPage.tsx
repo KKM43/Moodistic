@@ -175,7 +175,7 @@ export default function JournalPage({ showHistory = false }: Props) {
       const msg =
         err.message?.includes("429") || err.message?.includes("rate")
           ? "Taking a short break — please wait a moment and try again 🙏"
-          : "Connection issue — please try again.";
+          : "Taking a bit longer than usual... try again in a moment 🙏";
       setError(msg);
     }
 
