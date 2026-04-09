@@ -54,7 +54,7 @@ export default function MoodHeatmap({ entries }: Props) {
 
   const endDate = new Date();
   const startDate = new Date();
-  startDate.setMonth(startDate.getMonth() - 6);
+  startDate.setMonth(startDate.getMonth() - 3);
 
   const getClass = (
     value: ReactCalendarHeatmapValue<string> | undefined,
