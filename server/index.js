@@ -4,11 +4,6 @@ require("dotenv").config();
 
 const app = express();
 
-const controller = new AbortController();
-const timeout = setTimeout(() => controller.abort(), 15000);
-
-
-
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -18,14 +13,13 @@ app.use(
         process.env.FRONTEND_URL,
       ].filter(Boolean);
 
-      
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); 
+        callback(null, true);
       }
     },
-  })
+  }),
 );
 
 app.use(express.json({ limit: "10mb" }));
@@ -66,56 +60,79 @@ app.post("/api/chat", async (req, res) => {
   }
 
   try {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000); 
+    const makeRequest = async (retryCount = 0) => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant", 
-        max_tokens: 200,
-        temperature: 0.8,
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
-      }),
-      signal: controller.signal,
-    }
-  );
+      try {
+        const response = await fetch(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model: "llama-3.1-8b-instant",
+              max_tokens: 200,
+              temperature: 0.8,
+              messages: [
+                { role: "system", content: systemPrompt },
+                ...messages,
+              ],
+            }),
+            signal: controller.signal,
+          },
+        );
 
-  clearTimeout(timeout);
+        clearTimeout(timeout);
 
-  const data = await response.json();
+        const data = await response.json();
 
-  if (response.status === 429) {
-    return res
-      .status(429)
-      .json({ error: "AI is taking a short break — try again in a moment" });
-  }
+        if (response.status === 429 && retryCount < 2) {
+          await new Promise((r) => setTimeout(r, 2000));
+          return makeRequest(retryCount + 1);
+        }
 
-  if (!response.ok) {
-    console.error("Groq error:", data);
-    return res
-      .status(500)
-      .json({ error: data.error?.message || "Groq error" });
-  }
+        if (!response.ok) {
+          throw new Error(data.error?.message || "Groq error");
+        }
 
-  return res.json({ content: data.choices[0].message.content });
+        return data.choices[0].message.content;
+      } catch (err) {
+        clearTimeout(timeout);
 
-} catch (err) {
-  if (err.name === "AbortError") {
-    return res.status(504).json({
-      error: "AI took too long — try again 🙏",
+        if (
+          (err.name === "AbortError" || err.message.includes("fetch")) &&
+          retryCount < 2
+        ) {
+          await new Promise((r) => setTimeout(r, 1500));
+          return makeRequest(retryCount + 1);
+        }
+
+        throw err;
+      }
+    };
+
+    const result = await makeRequest();
+
+    const delay = Math.min(2500, 500 + result.length * 10);
+    await new Promise((r) => setTimeout(r, delay));
+
+    return res.json({
+      content: result,
+      thinking: false,
+    });
+  } catch (err) {
+    console.error("Final Error:", err);
+
+    return res.status(200).json({
+      content:
+        "hmm... something felt a bit off just now. want to try that again?",
+      thinking: false,
     });
   }
-
-  console.error("Error:", err);
-  return res.status(500).json({ error: "Server error — please try again" });
-}
 });
 
 const PORT = process.env.PORT || 3001;
