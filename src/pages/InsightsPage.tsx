@@ -47,7 +47,7 @@ export default function InsightsPage() {
                   <MoodChart entries={entries} />
 
                   <div className="calendar-section">
-                    <h3 className="section-heading">2-Month Mood Calendar</h3>
+                    <h3 className="section-heading">6-Month Mood Calendar</h3>
                     <p className="section-subheading">
                       Each square is a day. Hover to see what you wrote.
                     </p>
