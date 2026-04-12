@@ -1496,11 +1496,7 @@ body {
   margin-top: 8px;
 }
 
-@media (max-width: 768px) {
-  .stats-grid { 
-    grid-template-columns: repeat(2, 1fr); 
-  }
-}
+
 
 .stat-card.premium {
   background: var(--paper);
@@ -2020,43 +2016,6 @@ body {
   margin-top: 8px;
 }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .journal-main { padding: 24px 20px; }
-  .sidebar { width: 200px; }
-  .chat-bubble { max-width: 85%; }
-}
-
-@media (max-width: 600px) {
-  .journal-layout { flex-direction: column; }
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    padding: 12px 16px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .chat-bubble {
-    max-width: 90%;
-    padding: 10px 14px;
-    font-size: 14px;
-  }
-  .bubble-timestamp {
-    font-size: 11px;
-  }
-  .chat-input {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-  .journal-main {
-    padding: 16px 12px;
-  }
-  .entry-card {
-    padding: 16px;
-    gap: 8px;
-  }
-  
-}
 
 .brand-logo {
   width: 64px;
@@ -2123,207 +2082,13 @@ body::after {
   transition: all 0.2s;
 }
 
-@media (max-width: 640px) {
-  .journal-layout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    position: fixed;
-    left: -280px;
-    top: 0;
-    bottom: 0;
-    width: 280px;
-    transition: left 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-    z-index: 100;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-  }
-
-  .sidebar.open {
-    left: 0;
-  }
-
-  .mobile-hamburger {
-    display: block;
-    position: fixed;          
-    top: 16px;
-    left: 16px;
-    background: var(--paper);
-    border-radius: 50%;
-    box-shadow: 0 2px 8px var(--shadow);
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .mobile-hamburger:hover {
-    background: var(--cream-deep);
-  }
-
-  .journal-main {
-    padding: 24px 16px 80px;
-    width: 100%;
-  }
-
-  
-  .sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(44, 36, 22, 0.4);
-    z-index: 90;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .sidebar-overlay.show {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-
-
-@media (max-width: 640px) {
-  .nav-btn, .signout-btn {
-    padding: 14px 16px;
-    font-size: 15px;
-    min-height: 52px;
-  }
-
-  .sidebar-brand {
-    padding-bottom: 20px;
-  }
-}
 
 
 
 
 
-@media (max-width: 640px) {
-  .journal-main {
-    padding: 70px 16px 100px !important;
-  }
 
-  .journal-header {
-    margin-bottom: 20px;
-  }
 
-  .journal-title {
-    font-size: 24px;
-  }
-
-  
-  .mood-selector {
-    margin-bottom: 24px;
-  }
-
-  .mood-label {
-    font-size: 13px;
-    margin-bottom: 16px;
-  }
-
-  .mood-options {
-    gap: 10px;
-  }
-
-  .mood-btn {
-    padding: 16px 8px;
-    min-height: 92px;
-    border-radius: 18px;
-  }
-
-  .mood-emoji {
-    font-size: 32px;
-  }
-
-  .mood-text {
-    font-size: 12px;
-    margin-top: 4px;
-  }
-
-  /* Chat Container */
-  .chat-container {
-    height: calc(100vh - 140px); 
-  }
-
-  .chat-header {
-    padding-bottom: 12px;
-    margin-bottom: 12px;
-  }
-
-  .chat-mood-badge {
-    font-size: 12px;
-    padding: 5px 12px;
-  }
-
-  /* Chat Messages */
-  .chat-messages {
-    gap: 14px;
-    padding-bottom: 20px;
-  }
-
-  .chat-bubble {
-    max-width: 88%;
-    padding: 12px 16px;
-    font-size: 15.5px;
-  }
-
-  .bubble-user {
-    border-radius: 20px 20px 6px 20px;
-  }
-
-  .bubble-ai {
-    border-radius: 20px 20px 20px 6px;
-  }
-
-  
-  .chat-input-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--cream);
-    border-top: 1px solid var(--border);
-    padding: 12px 16px 20px;
-    z-index: 50;
-    box-shadow: 0 -2px 10px var(--shadow);
-  }
-
-  .chat-input {
-    border-radius: 24px;
-    padding: 14px 18px;
-    font-size: 16px; 
-    min-height: 52px;
-  }
-
-  .chat-send-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
-  }
-
-  /* Session Start & Ended */
-  .session-start,
-  .session-ended {
-    padding: 20px 0;
-  }
-
-  .welcome-block {
-    padding: 20px;
-  }
-
-  .welcome-message {
-    font-size: 15.5px;
-  }
-
-  /* End Session Button */
-  .end-session-btn {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
-}
 
 
 @media (max-width: 380px) {
@@ -2342,103 +2107,7 @@ body::after {
 
 
 
-@media (max-width: 640px) {
-  .history-view {
-    padding-bottom: 80px;
-  }
 
-  .history-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .entry-card {
-    padding: 18px;
-    border-radius: 16px;
-    gap: 14px;
-  }
-
-  .entry-meta {
-    margin-bottom: 8px;
-  }
-
-  .entry-date {
-    font-size: 13px;
-  }
-
-  .entry-mood {
-    font-size: 32px;
-  }
-
-  .entry-ai {
-    padding: 14px;
-  }
-
-  .entry-ai-label {
-    font-size: 10px;
-  }
-
-  .entry-ai-text {
-    font-size: 14px;
-    line-height: 1.65;
-  }
-
-  /* Search */
-  .search-wrap {
-    margin-bottom: 12px;
-  }
-
-  .search-input {
-    padding: 14px 16px;
-    font-size: 16px; 
-    border-radius: 14px;
-  }
-
-  .search-results-count {
-    font-size: 13px;
-    margin-bottom: 12px;
-  }
-
-  
-  .history-detail {
-    max-width: 100%;
-    padding-bottom: 80px;
-  }
-
-  .detail-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding-bottom: 20px;
-  }
-
-  .back-btn {
-    padding: 10px 0;
-    font-size: 16px;
-    min-height: 48px;
-  }
-
-  .detail-mood {
-    font-size: 48px;
-  }
-
-  .detail-summary {
-    padding: 20px;
-    border-radius: 16px;
-  }
-
-  .detail-chat {
-    padding: 20px 16px;
-    border-radius: 16px;
-    max-height: calc(100vh - 220px);
-  }
-
-  .detail-chat .chat-bubble {
-    max-width: 92%;
-    padding: 13px 16px;
-    font-size: 15.5px;
-  }
-}
 
 /* Extra small screens */
 @media (max-width: 380px) {
@@ -2448,186 +2117,6 @@ body::after {
   
   .detail-chat .chat-bubble {
     max-width: 95%;
-  }
-}
-
-
-
-
-@media (max-width: 640px) {
-  .sidebar {
-    padding: 20px 16px;
-    width: 280px;
-  }
-
-  .sidebar-brand {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-  }
-
-  .sidebar-logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .sidebar-title {
-    font-size: 22px;
-  }
-
-  
-  .sidebar-user {
-    font-size: 13px;
-    padding: 8px 12px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-  }
-
-  .sidebar-nav {
-    gap: 6px;
-  }
-
-  .nav-btn {
-    padding: 14px 16px;
-    font-size: 15.5px;
-    border-radius: 12px;
-    min-height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .nav-btn svg, .nav-btn span:first-child {
-    font-size: 18px;
-  }
-
-  .entry-count {
-    font-size: 11px;
-    padding: 2px 7px;
-    min-width: 20px;
-    text-align: center;
-  }
-
-  /* Language selector improvement */
-  .sidebar-lang {
-    margin-top: 12px;
-    margin-bottom: 20px;
-  }
-
-  .lang-btn {
-    padding: 10px 8px;
-  }
-
-  .signout-btn {
-    padding: 14px 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    min-height: 52px;
-    margin-top: auto;
-  }
-}
-
-
-@media (max-width: 640px) {
-  .nav-active {
-    background: var(--paper) !important;
-    color: var(--terra) !important;
-    font-weight: 600;
-    box-shadow: 0 2px 8px var(--shadow-warm);
-  }
-}
-
-
-
-
-
-@media (max-width: 640px) {
-  .insights-view {
-    padding-bottom: 80px;
-  }
-
-  .insights-dashboard {
-    gap: 24px;
-  }
-
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .stat-card.premium {
-    padding: 16px 12px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-  }
-
-  
-  .dashboard-grid {
-    grid-template-columns: 1fr !important;
-    gap: 20px;
-  }
-
-  .mood-trend-card,
-  .recent-reflections-card {
-    padding: 20px 16px;
-  }
-
-  .section-heading {
-    font-size: 17px;
-  }
-
-  .section-subheading {
-    font-size: 13px;
-  }
-
-  /* Chart Container */
-  .chart-wrap {
-    margin: 12px 0;
-  }
-
-  /* Recent Reflections Cards */
-  .insight-entry-card {
-    padding: 16px;
-    gap: 10px;
-  }
-
-  .entry-content {
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .view-in-past {
-    font-size: 13px;
-    display: block;
-    margin-top: 12px;
-  }
-
-  .view-in-past:hover {
-  color: var(--terra-deep);
-  text-decoration: none !important;
-}
-
-  /* Heatmap improvements */
-  .heatmap-wrap {
-    overflow-x: auto;
-    padding-bottom: 8px;
-  }
-
-  .react-calendar-heatmap {
-    width: 100%;
-    min-width: 320px;
-  }
-
-  .heatmap-legend {
-    flex-wrap: wrap;
-    gap: 12px;
-    font-size: 12px;
   }
 }
 
@@ -2642,8 +2131,6 @@ body::after {
     padding: 18px 14px;
   }
 }
-
-
 
 .modal-actions {
   display: flex;
@@ -2698,143 +2185,6 @@ body::after {
   background: #9b2c2c !important;
 }
 
-
-@media (max-width: 640px) {
-  .modal-card {
-    margin: 20px;
-    padding: 28px 24px;
-  }
-  
-  .modal-actions {
-    gap: 12px;
-  }
-  
-  .modal-cancel,
-  .modal-confirm {
-    padding: 16px 20px;
-    font-size: 16px;
-    min-height: 56px;
-  }
-}
-
-
-
-
-@media (max-width: 640px) {
-  .auth-container {
-    padding: 16px 12px;
-    overflow: hidden;
-  }
-
-  .auth-card {
-    padding: 32px 24px;
-    border-radius: 20px;
-    max-width: 100%;
-    margin: 0 auto;
-    box-shadow: 
-      0 4px 20px var(--shadow),
-      0 0 0 1px var(--border-soft);
-  }
-
-  .brand-logo {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 8px;
-  }
-
-  .brand-name {
-    font-size: 28px;
-  }
-
-  .brand-tagline {
-    font-size: 13.5px;
-  }
-
-  .auth-tabs {
-    padding: 5px;
-    border-radius: 12px;
-    margin-bottom: 28px;
-  }
-
-  .auth-tab {
-    padding: 11px 12px;
-    font-size: 15px;
-    border-radius: 10px;
-  }
-
-  .auth-form {
-    gap: 18px;
-  }
-
-  .form-group {
-    gap: 7px;
-  }
-
-  .form-label {
-    font-size: 12.5px;
-  }
-
-  .form-input {
-    padding: 14px 16px;
-    font-size: 16px;
-    border-radius: 14px;
-    min-height: 52px;
-  }
-
-  .auth-btn {
-    padding: 16px;
-    font-size: 16px;
-    min-height: 56px;
-    border-radius: 14px;
-    margin-top: 8px;
-  }
-
-  .google-btn {
-    padding: 14px 16px;
-    font-size: 15px;
-    min-height: 52px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-  }
-
-  .auth-divider {
-    margin: 20px 0;
-    font-size: 13px;
-  }
-
-  .forgot-link {
-    font-size: 14.5px;
-    padding: 8px 0;
-    min-height: 44px;
-  }
-
-  .auth-footer {
-    font-size: 12.5px;
-    margin-top: 32px;
-    padding: 0 8px;
-  }
-
-  /* Forgot Password Flow */
-  .forgot-wrap .auth-card {
-    padding: 28px 20px;
-  }
-
-  .back-btn {
-    font-size: 15px;
-    padding: 10px 0;
-    margin-bottom: 24px;
-  }
-
-  .forgot-sent {
-    padding: 20px 0;
-  }
-
-  .forgot-icon {
-    font-size: 52px;
-  }
-}
-
-
 @media (max-width: 380px) {
   .auth-container {
     padding: 12px 8px;
@@ -2855,4 +2205,183 @@ body::after {
   }
 }
 
+
+
+@media (max-width: 380px) {
+  .sidebar {
+    width: 270px;
+  }
+}
+
+
+@media (max-width: 640px) {
+  /* General Layout */
+  .journal-layout {
+    flex-direction: column;
+  }
+
+  .journal-main {
+    padding: 70px 16px 100px !important;
+    width: 100%;
+  }
+
+  /* Sidebar Improvements */
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    transition: left 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 100;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    padding: 24px 20px 20px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-user {
+    font-size: 15px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    background: var(--cream-darker);
+    border-radius: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .sidebar-brand {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+
+  .nav-btn, .signout-btn {
+    padding: 15px 16px;
+    font-size: 15.5px;
+    min-height: 54px;
+    border-radius: 14px;
+  }
+
+  .signout-btn {
+    margin-top: auto;
+    width: 100%;
+  }
+
+  .mobile-hamburger {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 30;
+    background: var(--paper);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px var(--shadow);
+    font-size: 26px;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 36, 22, 0.45);
+    z-index: 90;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Chat Screen Improvements */
+  .chat-container {
+    height: calc(100vh - 140px);
+  }
+
+  .chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px 24px;
+    z-index: 50;
+    box-shadow: 0 -2px 10px var(--shadow);
+  }
+
+  .chat-input {
+    border-radius: 24px;
+    padding: 14px 18px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+
+  .chat-send-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  /* Mood Selector */
+  .mood-btn {
+    padding: 16px 8px;
+    min-height: 92px;
+    border-radius: 18px;
+  }
+
+  .mood-emoji {
+    font-size: 32px;
+  }
+
+  .mood-text {
+    font-size: 12px;
+  }
+
+  /* History View */
+  .history-view {
+    padding-bottom: 80px;
+  }
+
+  .entry-card {
+    padding: 18px;
+  }
+
+  /* Guided Prompts Hint Fix */
+  .prompts-hint,
+  .guided-prompts-hint {
+    font-size: 13px;
+    margin-bottom: 8px;
+    opacity: 0.85;
+  }
+
+  .prompt-item {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  
+  .chat-input-area:has(.chat-bubble-wrap) .prompts-wrap {
+    display: none;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .mood-btn {
+    min-height: 86px;
+  }
+  
+  .mood-emoji {
+    font-size: 28px;
+  }
+}
 
