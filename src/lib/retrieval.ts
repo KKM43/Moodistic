@@ -75,28 +75,31 @@ function scoreEntry(
 ): number {
   const entryKeywords = extractKeywords(entry.content)
 
-
   const keywordScore = keywordSimilarity(currentKeywords, entryKeywords)
-
 
   const entryEmotion = detectEmotion(entryKeywords)
   const emotionScore =
     currentEmotion && entryEmotion && currentEmotion === entryEmotion ? 1 : 0
 
-
   const daysSince =
     (Date.now() - new Date(entry.created_at).getTime()) / 86400000
-  const recencyScore = Math.exp(-daysSince / 30)
-
+  const recencyScore = Math.exp(-daysSince / 20)
 
   const moodScore = moodSimilarity(currentMood, entry.mood_score)
 
+  // 🔥 NEW — semantic hint from AI response
+  const meaningScore = entry.ai_response
+    ?.toLowerCase()
+    .includes(currentEmotion || '')
+    ? 0.6
+    : 0
 
   return (
-    0.4 * keywordScore +
-    0.3 * emotionScore +
+    0.25 * keywordScore +
+    0.25 * emotionScore +
     0.2 * recencyScore +
-    0.1 * moodScore
+    0.15 * moodScore +
+    0.15 * meaningScore
   )
 }
 

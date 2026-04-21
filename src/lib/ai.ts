@@ -1,12 +1,15 @@
+import { extractPatterns } from './patterns'
 import type { JournalEntry, ChatMessage } from '../types'
 import { LANGUAGE_INSTRUCTIONS } from './languages'
 import type { AppLanguage } from '../types'
 import { detectUserStyle } from './personality'
 import type { UserMemory } from './memory'
+import { analyzeSentiment } from './retrieval'
 
 import { API_URL } from "./api";
 
 const userMessageCounts = new Map<string, { count: number, date: string }>()
+
 
 export function checkRateLimit(userId: string): boolean {
   const today = new Date().toDateString()
@@ -34,10 +37,17 @@ function formatPastEntries(entries: JournalEntry[]): string {
       month: 'short'
     })
 
-    return `- (${date}) mood:${entry.mood_score} — ${entry.ai_response.slice(0, 100)}`
+    return `- ${date}: you felt ${entry.mood_score}/5 and shared something like: "${entry.content.slice(0, 80)}"`
   }).join('\n')
 
-  return `\nPAST CONTEXT:\n${formatted}\n---`
+  return `
+PAST MOMENTS (for internal use):
+${formatted}
+
+Use only if it feels natural:
+- Gently connect emotionally, not factually
+- Never list or repeat directly
+---`
 }
 
 
@@ -50,6 +60,7 @@ export async function getChatResponse(
 
 ): Promise<string> {
   const contextBlock = formatPastEntries(pastEntries)
+  const patterns = extractPatterns(pastEntries) || undefined
 
 
   const recentMessages = messages.slice(-6)
@@ -61,7 +72,23 @@ export async function getChatResponse(
     content: m.content.slice(0, 200)
   }))
 
-  return callBackend(groqMessages, contextBlock, language, userStyle, userMemory)
+  const lastUserMessage =
+  [...messages].reverse().find(m => m.role === 'user')?.content || ''
+
+  const sentiment = await analyzeSentiment(lastUserMessage)
+
+  const strategy = decideStrategy(lastUserMessage, sentiment)
+
+  // return callBackend(groqMessages, contextBlock, language, userStyle, userMemory)
+  return callBackend(
+    groqMessages,
+    contextBlock,
+    language,
+    userStyle,
+    userMemory,
+    strategy,
+    patterns,
+  )
 }
 
 
@@ -87,13 +114,114 @@ User writes in detail.
 `
 }
 
+type ResponseStrategy =
+  | 'grounding'
+  | 'reframing'
+  | 'reflective'
+  | 'clarifying'
+  | 'supportive'
+
+function decideStrategy(
+  text: string,
+  sentiment: { tone: string; confidence: number }
+): ResponseStrategy {
+  const lower = text.toLowerCase()
+
+  if (
+    sentiment.tone === 'negative' &&
+  text.length < 25 &&
+    (lower.includes('cant') ||
+      lower.includes("can't") ||
+      lower.includes('nothing') ||
+      lower.includes('void') ||
+      lower.includes('lost'))
+  ) {
+    return 'grounding'
+  }
+
+  if (
+    sentiment.tone === 'negative' &&
+    (lower.includes('fail') ||
+      lower.includes('not capable') ||
+      lower.includes('not good enough') ||
+      lower.includes('useless') ||
+      lower.includes('cant do') ||
+      lower.includes("can't do") ||
+      lower.includes('never succeed') ||
+      lower.includes('always fail')
+    )
+  ) {
+    return 'reframing'
+  }
+
+  if (sentiment.tone === 'negative') {
+    return 'supportive'
+  }
+
+  if (text.length < 40) {
+    return 'clarifying'
+  }
+
+  return 'reflective'
+}
+
+function getStrategyInstruction(strategy: ResponseStrategy): string {
+  switch (strategy) {
+    case 'grounding':
+      return `
+The user feels overwhelmed or stuck.
+- Slow things down
+- Normalize the feeling
+- Give ONE very small, optional action (like breathing or stepping away)
+- Do NOT overwhelm with questions
+`
+
+    case 'reframing':
+      return `
+The user is thinking in extreme or negative beliefs.
+- Gently challenge their thinking
+- Offer a more balanced perspective
+- Do NOT invalidate their feeling
+`
+
+    case 'clarifying':
+      return `
+The user is vague or short.
+- Ask a simple, specific follow-up
+- Keep it light
+`
+
+    case 'supportive':
+      return `
+The user is emotionally low.
+- Be warm and validating
+- Stay with their feeling
+- Avoid solutions unless necessary
+`
+
+    case 'reflective':
+    default:
+      return `
+- Reflect their thoughts with slight depth
+- Ask a thoughtful question if natural
+`
+  }
+}
+
 function buildSystemPrompt(
   contextBlock: string,
   language: AppLanguage = 'en',
   userStyle: 'short' | 'medium' | 'deep' = 'medium',
-  userMemory?: UserMemory
+  userMemory?: UserMemory,
+  strategy: ResponseStrategy = 'reflective',
+  patterns?: {
+    dominantEmotion: string | null
+    frequency: number
+    recentTrend: string
+  }
 ): string {
   const languageInstruction = LANGUAGE_INSTRUCTIONS[language]
+  const strategyInstruction = getStrategyInstruction(strategy)
   const randomStyle =
     REACTION_STYLES[Math.floor(Math.random() * REACTION_STYLES.length)]
 
@@ -109,6 +237,21 @@ Use this subtly:
 - Let it influence tone and understanding
 `
     : ""
+
+const patternBlock =
+  patterns && patterns.frequency >= 2 && patterns.dominantEmotion
+    ? `
+PATTERN INSIGHT:
+- The user has been frequently feeling: ${patterns.dominantEmotion}
+- This has appeared ${patterns.frequency} times recently
+- Overall trend: ${patterns.recentTrend}
+
+Use this carefully:
+- Only mention if it feels natural
+- Never sound analytical
+- Say it like a soft observation
+`
+    : ''
 
   return `
 IDENTITY:
@@ -129,6 +272,10 @@ Your role:
 
 ${languageInstruction ? languageInstruction + '\n' : ''}
 ${memoryBlock}
+${patternBlock}
+
+RESPONSE MODE:
+${strategyInstruction}
 
 STYLE:
 Tone: ${randomStyle}
@@ -137,13 +284,21 @@ ${styleInstructionMap[userStyle]}
 - Talk like real texting. Natural and slightly imperfect
 - Usually 2–4 sentences (vary it)
 - Sometimes ask a question, sometimes don’t
-- It's okay to be casual: "hmm", "...", "idk"
+- Keep tone natural and human
+- Avoid overusing filler words like "hmm" or "..."
 
 BEHAVIOR:
 - React emotionally first
 - Validate without sounding clinical
-- Stay with their feeling — don’t rush to fix
+- Stay with their feeling, but don’t get stuck there
+- If the user feels stuck, gently help them move forward
 - Advice should be small, optional, and human
+
+RESPONSE STRUCTURE:
+- Start with a short emotional reflection
+- Then validate the feeling naturally
+- If needed, gently guide (based on response mode)
+- Keep it flowing like a real message, not bullet points
 
 FIRST MESSAGE RULE:
 If this is the first user message:
@@ -161,7 +316,12 @@ AVOID:
 - Robotic phrasing
 
 MEMORY:
-- If past context exists, use it subtly and naturally
+- If relevant, gently connect current feelings with past moments
+- Never force it
+- Do it like a human would:
+  "this feels similar to something you mentioned before..."
+- Do NOT repeat exact past entries
+- Focus on emotional continuity, not details
 
 FLOW:
 - Sometimes just respond without asking a question
@@ -180,6 +340,12 @@ async function callBackend(
   language: AppLanguage = 'en',
   userStyle: 'short' | 'medium' | 'deep' = 'medium',
   userMemory?: UserMemory,
+  strategy: ResponseStrategy = 'reflective',
+  patterns?: {
+  dominantEmotion: string | null
+  frequency: number
+  recentTrend: string
+},
   retries: number = 2
 ): Promise<string> {
   const response = await fetch(`${API_URL}/api/chat`, {
@@ -187,13 +353,13 @@ async function callBackend(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages,
-      systemPrompt: buildSystemPrompt(contextBlock, language, userStyle, userMemory)
+      systemPrompt: buildSystemPrompt(contextBlock, language, userStyle, userMemory, strategy, patterns)
     })
   })
 
   if (response.status === 429 && retries > 0) {
     await new Promise(resolve => setTimeout(resolve, 3000))
-    return callBackend(messages, contextBlock, language, userStyle)
+    return callBackend(messages, contextBlock, language, userStyle, userMemory, strategy,  patterns, retries - 1)
   }
 
   const data = await response.json()
